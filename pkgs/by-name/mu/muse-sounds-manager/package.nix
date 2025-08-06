@@ -3,7 +3,6 @@
   stdenv,
   fetchurl,
   autoPatchelfHook,
-  dpkg,
   fontconfig,
   zlib,
   icu,
@@ -18,23 +17,22 @@
 
 stdenv.mkDerivation rec {
   pname = "muse-sounds-manager";
-  version = "1.1.0.587";
+  version = "2.0.4.872";
 
   # Use web.archive.org since upstream does not provide a stable (versioned) URL.
   # To see if there are new versions on the Web Archive, visit
-  # http://web.archive.org/cdx/search/cdx?url=https://muse-cdn.com/Muse_Sounds_Manager_Beta.deb
+  # http://web.archive.org/cdx/search/cdx?url=https://muse-cdn.com/Muse_Sounds_Manager_x64.tar.gz
   # then replace the date in the URL below with date when the SHA1
-  # changes (currently A3NX3WHFZWXCHZVME2ABUL2VRENTWOD5) and replace
+  # changes (currently QLR46LKDOAPB7VSF45HEAXWVNWFJHITG) and replace
   # the version above with the version in the .deb metadata (or in the
   # settings of muse-sounds-manager).
   src = fetchurl {
-    url = "https://web.archive.org/web/20240826143936/https://muse-cdn.com/Muse_Sounds_Manager_Beta.deb";
-    hash = "sha256-wzZAIjme1cv8+jMLiKT7kUQvCb+UhsvOnLDV4hCL3hw=";
+    url = "https://web.archive.org/web/20250729165100/https://muse-cdn.com/Muse_Sounds_Manager_x64.tar.gz";
+    hash = "sha256-VcLBXpLDk90yd0j9NIzBOXXAciSLWP9y5X51L2/9W4A=";
   };
 
   nativeBuildInputs = [
     autoPatchelfHook
-    dpkg
   ];
 
   buildInputs = [
@@ -55,17 +53,16 @@ stdenv.mkDerivation rec {
     openssl
   ];
 
-  unpackPhase = "dpkg -x $src .";
-
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out
-    mv usr/* opt $out/
-    substituteInPlace $out/bin/muse-sounds-manager --replace-fail /opt/ $out/opt/
+    mkdir -p $out/bin
+    mv bin/* $out/bin/
 
     runHook postInstall
   '';
+
+  dontStrip = true;
 
   meta = {
     description = "Manage Muse Sounds (Muse Hub) libraries for MuseScore";
